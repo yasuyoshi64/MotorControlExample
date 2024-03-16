@@ -23,7 +23,7 @@ class Motor {
 
     public:
         void clear();
-        void init(gpio_num_t gpioINA, gpio_num_t gpioINB, gpio_num_t gpioPWM);
+        void init(gpio_num_t gpioINA, gpio_num_t gpioINB);
         void setDirection(MotorDirection md);
         MotorDirection getDirection() { return m_md; }
         void setSpeed(int speed);
@@ -33,7 +33,6 @@ class Motor {
         // タスク
         static void task(void* arg);
         //
-        void direction();
         void speed();
 
     private:
@@ -41,11 +40,10 @@ class Motor {
         QueueHandle_t m_xQueue; // メッセージキュー
         gpio_num_t m_gpioINA;   // 制御用GPIO
         gpio_num_t m_gpioINB;   // 制御用GPIO
-        gpio_num_t m_gpioPWM;   // 制御用GPIO
         MotorDirection m_md;
-        mcpwm_timer_handle_t m_timer;
-        mcpwm_oper_handle_t m_oper;
-        mcpwm_cmpr_handle_t m_comparator;
-        mcpwm_gen_handle_t m_generator;
+        mcpwm_timer_handle_t m_timer[2];
+        mcpwm_oper_handle_t m_oper[2];
+        mcpwm_cmpr_handle_t m_comparator[2];
+        mcpwm_gen_handle_t m_generator[2];
         int m_speed;            // 0～100%
 };

@@ -70,7 +70,7 @@ void Application::init() {
     m_save_data.init(ROOT);
 
     // モーターコントローラー
-    m_motor.init((gpio_num_t)CONFIG_INA_PIN, (gpio_num_t)CONFIG_INB_PIN, (gpio_num_t)CONFIG_PWM_PIN);
+    m_motor.init((gpio_num_t)CONFIG_INA_PIN, (gpio_num_t)CONFIG_INB_PIN);
 
     // OLED(SSD1306)ディスプレイ初期化
     m_oled.init(dispInitCompFunc, this);
