@@ -44,10 +44,6 @@ menu "MotorControlExample"
         config INB_PIN
             int "INB GPIO number"
             default 13
-
-        config PWM_PIN
-            int "PWM GPIO number"
-            default 14
     endmenu
 
 endmenu
