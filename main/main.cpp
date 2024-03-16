@@ -69,11 +69,8 @@ void Application::init() {
     // 保存データ初期化
     m_save_data.init(ROOT);
 
-    // LEDコントローラー
-    m_led.init();
-
-    // サーボコントローラー
-    m_servo.init(CONFIG_SERVO_PIN, 0);
+    // モーターコントローラー
+    m_motor.init((gpio_num_t)CONFIG_INA_PIN, (gpio_num_t)CONFIG_INB_PIN, (gpio_num_t)CONFIG_PWM_PIN);
 
     // OLED(SSD1306)ディスプレイ初期化
     m_oled.init(dispInitCompFunc, this);
@@ -86,8 +83,6 @@ void Application::init() {
     m_web.addHandler(HTTP_GET, "get_data", getData, this);
     m_web.addHandler(HTTP_POST, "set_data", setData, this);
     m_web.addHandler(HTTP_POST, "save", save, this);
-    m_web.addHandler(HTTP_GET, "get_led", getLed, this);
-    m_web.addHandler(HTTP_POST, "set_led", setLed, this);
     m_web.setWebSocketHandler(sebSocketFunc, this);
 
     ESP_LOGI(TAG, "Init(E)");
@@ -143,9 +138,6 @@ void Application::mountFunc(bool isMount, void* context) {
     }
     // 保存データ読み込み
     pThis->m_save_data.read();
-    // サーボトリム
-    const char* trim = pThis->m_save_data.get("servo_trim");
-    pThis->m_servo.setAngle(std::stod(trim == NULL ? "0" : trim));
 }
 
 // ファイル一覧コールバック
@@ -254,17 +246,14 @@ void Application::wifiDisconnection() {
 // WebAPI GET /API/get_data
 // {
 //   "ip_address": "192.168.0.1",
-//   "servo_trim": "5"
 // }
 void Application::getData(httpd_req_t *req, void* context) {
     ESP_LOGI(TAG, "getData");
     Application* pThis = (Application*)context;
     char resp[100];
     const char* ip_address = pThis->m_wifi.getIPAddress();
-    const char* servo_trim = pThis->m_save_data.get("servo_trim");
     ip_address = ip_address == NULL ? "" : ip_address;
-    servo_trim = servo_trim == NULL ? "0" : servo_trim;
-    sprintf(resp, "{\"ip_address\": \"%s\", \"servo_trim\": %s}", ip_address, servo_trim);
+    sprintf(resp, "{\"ip_address\": \"%s\" }", ip_address);
     ESP_LOGI(TAG, "%s", resp);
     httpd_resp_set_type(req, "application/json");
     httpd_resp_send(req, resp, strlen(resp));
@@ -298,14 +287,14 @@ void Application::setData(httpd_req_t *req, void* context) {
         httpd_resp_send_500(req);
         return;
     }
-    cJSON* servo_trim = cJSON_GetObjectItemCaseSensitive(json, "servo_trim");
-    if (!cJSON_IsNumber(servo_trim)) {
-        ESP_LOGI(TAG, "json format error");
-        httpd_resp_send_500(req);
-        return;
-    }
-    double trim = cJSON_GetNumberValue(servo_trim);
-    pThis->m_save_data.set("servo_trim", std::to_string(trim).c_str());
+    // cJSON* servo_trim = cJSON_GetObjectItemCaseSensitive(json, "servo_trim");
+    // if (!cJSON_IsNumber(servo_trim)) {
+    //     ESP_LOGI(TAG, "json format error");
+    //     httpd_resp_send_500(req);
+    //     return;
+    // }
+    // double trim = cJSON_GetNumberValue(servo_trim);
+    // pThis->m_save_data.set("servo_trim", std::to_string(trim).c_str());
     cJSON_Delete(json);
     httpd_resp_send(req, NULL, 0);
 }
@@ -318,73 +307,22 @@ void Application::save(httpd_req_t *req, void* context) {
     httpd_resp_send(req, NULL, 0);
 }
 
-// WebAPI GET /API/get_led
-void Application::getLed(httpd_req_t *req, void* context) {
-    ESP_LOGI(TAG, "getLed");
-    Application* pThis = (Application*)context;
-    bool* led = pThis->m_led.getLed();
-    char resp[100];
-    sprintf(resp, "{\"led\": [ %s, %s, %s, %s ] }", led[0] ? "true" : "false", led[1] ? "true" : "false", led[2] ? "true" : "false", led[3] ? "true" : "false");
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req, resp, strlen(resp));
-}
-
-// WebAPI POST /API/set_led
-// body : 
-//  {
-//      "led": [ true, true, true, true ]
-//  }
-void Application::setLed(httpd_req_t *req, void* context) {
-    ESP_LOGI(TAG, "setLed");
-    Application* pThis = (Application*)context;
-    int ret, remaining = req->content_len;
-    char body[100];
-    if (remaining >= sizeof(body)) {
-        ESP_LOGE(TAG, "oversize request body");
-        httpd_resp_send_500(req);
-        return;
-    }
-    ret = httpd_req_recv(req, body, remaining);
-    if (ret == HTTPD_SOCK_ERR_TIMEOUT) {
-        ESP_LOGE(TAG, "timeout");
-        httpd_resp_send_408(req);
-        return;
-    }
-    body[ret] = '\0';
-    ESP_LOGI(TAG, "body : %s", body);
-    cJSON* json = cJSON_Parse(body);
-    if (json == NULL) {
-        ESP_LOGI(TAG, "json null");
-        httpd_resp_send_500(req);
-        return;
-    }
-    cJSON* leds = cJSON_GetObjectItemCaseSensitive(json, "led");
-    if (!cJSON_IsArray(leds)) {
-        ESP_LOGI(TAG, "json format error");
-        httpd_resp_send_500(req);
-        return;
-    }
-    cJSON* led = NULL;
-    bool ledData[4];
-    int i=0;
-    cJSON_ArrayForEach(led, leds) {
-        if (cJSON_IsTrue(led))
-            ledData[i] = true;
-        else
-            ledData[i] = false;
-        i++;
-    }
-    cJSON_Delete(json);
-    pThis->m_led.setLed(ledData);
-    httpd_resp_send(req, NULL, 0);
-}
-
 // WebSocketコールバック
 char* Application::sebSocketFunc(const char* data, void* context) {
     Application* pThis = (Application*)context;
     std::string str = data;
-    int angle = std::stod(str);
-    pThis->m_servo.setAngle(angle);
+    int speed = std::stoi(str);
+    MotorDirection md = MotorDirection::Stop;
+    if (speed == 0) {
+        md = MotorDirection::Stop;
+    } else if (speed > 0) {
+        md = MotorDirection::Foward;
+    } else if (speed < 0) {
+        md = MotorDirection::Back;
+        speed *= -1;
+    }
+    pThis->m_motor.setDirection(md);
+    pThis->m_motor.setSpeed(speed);
     return NULL;
 }
 

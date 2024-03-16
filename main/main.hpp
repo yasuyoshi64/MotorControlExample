@@ -10,8 +10,7 @@
 #include "oled_display.hpp"
 #include "wifi.hpp"
 #include "web.hpp"
-#include "led.hpp"
-#include "servo.hpp"
+#include "motor.hpp"
 #include "save_data.hpp"
 
 class Application {
@@ -37,8 +36,6 @@ class Application {
         static void getData(httpd_req_t *req, void* context);
         static void setData(httpd_req_t *req, void* context);
         static void save(httpd_req_t *req, void* context);
-        static void getLed(httpd_req_t *req, void* context);
-        static void setLed(httpd_req_t *req, void* context);
         // WebSocketコールバック
         static char* sebSocketFunc(const char* data, void* context);
         //
@@ -55,8 +52,7 @@ class Application {
         OledDisplay m_oled; // OLED(SSD1306)ディスプレイ
         WiFi m_wifi;        // Wi-Fi
         WebServer m_web;    // Webサーバー
-        Led m_led;          // Ledコントローラー
-        Servo m_servo;      // サーボコントローラー
+        Motor m_motor;      // モーター
         SaveData m_save_data;   // データ保存
         std::map<std::string, std::string> m_configMap{};     // CONFIG
         bool m_isWiFi;
