@@ -78,6 +78,16 @@ pass=[Wi-Fi Password]
 FA-130モーターは無負荷で70%くらいから回転を始めます。一度回転を始めれば40%くらいまで落としても回転します。
 60% = 9000RPM ～　100% = 19000RPM
 
+## 回路図
+
+![回路図](https://github.com/yasuyoshi64/MotorControlExample/blob/main/MotorControlExample.png?raw=true)
+
+## Web画面
+
+![Web画面](https://github.com/yasuyoshi64/MotorControlExample/blob/main/MotorControlExampleWeb.png?raw=true)
+
+スライダーを動かすことでモーターを操作できます。
+Saveボタンは何も機能しません。
 
 # _Sample project_
 
