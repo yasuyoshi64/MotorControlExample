@@ -13,7 +13,7 @@
     ],
     "idf.pythonBinPathWin": "C:\\Users\\wall\\.espressif\\python_env\\idf5.1_py3.11_env\\Scripts\\python.exe",
     "idf.toolsPathWin": "C:\\Users\\wall\\.espressif",
-    "idf.portWin": "COM4",
+    "idf.portWin": "COM6",
     "idf.flashType": "UART",
     "files.associations": {
         "string": "cpp",

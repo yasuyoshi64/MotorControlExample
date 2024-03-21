@@ -168,6 +168,7 @@ void Application::wifiConnectFunc(bool isConnect, void* context) {
 
         // pThis->m_sd_card.fileLists("/document/", fileFunc, pThis);
     } else {
+        ESP_LOGW(TAG, "wi-fi disconnect");
         pThis->m_30sec_off = pThis->m_isWiFi = false;
     }
     AppMessage msg = AppMessage::UpdateDisplay;
@@ -190,6 +191,7 @@ void Application::timer30secStart() {
 // 30秒タイマ
 void Application::timer30secFunc(TimerHandle_t xTimer) {
     Application* pThis = (Application*)pvTimerGetTimerID(xTimer);
+    ESP_LOGI(TAG, "30s timer handler");
     pThis->m_30sec_off = false;
     AppMessage msg = AppMessage::UpdateDisplay;
     xQueueSend(pThis->m_xQueue, &msg, portMAX_DELAY);
@@ -198,10 +200,12 @@ void Application::timer30secFunc(TimerHandle_t xTimer) {
 // 基盤上のボタン押下ハンドラ (GPIO0)
 void IRAM_ATTR Application::btn0HandlerFunc(void* context) {
     Application* pThis = (Application*)context;
-    pThis->m_30sec_off = true;
-    pThis->timer30secStart();
-    AppMessage msg = AppMessage::UpdateDisplay;
-    xQueueSend(pThis->m_xQueue, &msg, portMAX_DELAY);
+    if (pThis->m_30sec_off == false) {
+        pThis->m_30sec_off = true;
+        pThis->timer30secStart();
+        AppMessage msg = AppMessage::UpdateDisplay;
+        xQueueSend(pThis->m_xQueue, &msg, portMAX_DELAY);
+    }
 }
 
 // ディスプレイに現在状態表示
@@ -210,6 +214,7 @@ void Application::updateDisplay() {
         return;
     if (m_isWiFi) {
         if (m_30sec_off) {
+            ESP_LOGI(TAG, "QRCode output");
             const char* ipAddress = m_wifi.getIPAddress();
             char url[256];
             sprintf(url, "http://%s/", ipAddress);
