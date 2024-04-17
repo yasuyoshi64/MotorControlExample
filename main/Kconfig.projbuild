@@ -36,24 +36,14 @@ menu "MotorControlExample"
             default 22
     endmenu
 
-    menu "Motor(BD65496MUV) A PIN configuration"
-        config A_INA_PIN
+    menu "Motor(BD65496MUV) PIN configuration"
+        config INA_PIN
             int "INA GPIO number"
             default 12
 
-        config A_INB_PIN
+        config INB_PIN
             int "INB GPIO number"
             default 13
-    endmenu
-
-    menu "Motor(BD65496MUV) B PIN configuration"
-        config B_INA_PIN
-            int "INA GPIO number"
-            default 14
-
-        config B_INB_PIN
-            int "INB GPIO number"
-            default 15
     endmenu
 
 endmenu

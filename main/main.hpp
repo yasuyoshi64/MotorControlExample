@@ -52,8 +52,7 @@ class Application {
         OledDisplay m_oled; // OLED(SSD1306)ディスプレイ
         WiFi m_wifi;        // Wi-Fi
         WebServer m_web;    // Webサーバー
-        Motor m_motor_a;    // モーター
-        Motor m_motor_b;    // モーター
+        Motor m_motor;      // モーター
         SaveData m_save_data;   // データ保存
         std::map<std::string, std::string> m_configMap{};     // CONFIG
         bool m_isWiFi;

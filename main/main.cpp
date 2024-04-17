@@ -70,8 +70,7 @@ void Application::init() {
     m_save_data.init(ROOT);
 
     // モーターコントローラー
-    m_motor_a.init(0, (gpio_num_t)CONFIG_A_INA_PIN, (gpio_num_t)CONFIG_A_INB_PIN);
-    m_motor_b.init(1, (gpio_num_t)CONFIG_B_INA_PIN, (gpio_num_t)CONFIG_B_INB_PIN);
+    m_motor.init(0, (gpio_num_t)CONFIG_INA_PIN, (gpio_num_t)CONFIG_INB_PIN);
 
     // OLED(SSD1306)ディスプレイ初期化
     m_oled.init(dispInitCompFunc, this);
@@ -317,25 +316,25 @@ void Application::save(httpd_req_t *req, void* context) {
 char* Application::sebSocketFunc(const char* data, void* context) {
     Application* pThis = (Application*)context;
     ESP_LOGI(TAG, "data = %s", data);
-    char rl = data[0];
-    std::string str = &data[1];
-    int speed = std::stoi(str);
+    std::string str = data;
+    int speed = 0;
     MotorDirection md = MotorDirection::Stop;
-    if (speed == 0) {
-        md = MotorDirection::Stop;
-    } else if (speed > 0) {
-        md = MotorDirection::Foward;
-    } else if (speed < 0) {
-        md = MotorDirection::Back;
-        speed *= -1;
-    }
-    if (rl == 'R') {
-        pThis->m_motor_a.setDirection(md);
-        pThis->m_motor_a.setSpeed(speed);
+    if (str == "break") {
+        speed = 0;
+        md = MotorDirection::Brake;
     } else {
-        pThis->m_motor_b.setDirection(md);
-        pThis->m_motor_b.setSpeed(speed);
+        speed = std::stoi(str);
+        if (speed == 0) {
+            md = MotorDirection::Stop;
+        } else if (speed > 0) {
+            md = MotorDirection::Foward;
+        } else if (speed < 0) {
+            md = MotorDirection::Back;
+            speed *= -1;
+        }
     }
+    pThis->m_motor.setDirection(md);
+    pThis->m_motor.setSpeed(speed);
     return NULL;
 }
 
