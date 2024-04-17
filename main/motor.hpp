@@ -23,7 +23,7 @@ class Motor {
 
     public:
         void clear();
-        void init(gpio_num_t gpioINA, gpio_num_t gpioINB);
+        void init(int groupID, gpio_num_t gpioINA, gpio_num_t gpioINB);
         void setDirection(MotorDirection md);
         MotorDirection getDirection() { return m_md; }
         void setSpeed(int speed);
@@ -38,6 +38,7 @@ class Motor {
     private:
         TaskHandle_t m_xHandle; // タスクハンドル
         QueueHandle_t m_xQueue; // メッセージキュー
+        int m_groupID;
         gpio_num_t m_gpioINA;   // 制御用GPIO
         gpio_num_t m_gpioINB;   // 制御用GPIO
         MotorDirection m_md;

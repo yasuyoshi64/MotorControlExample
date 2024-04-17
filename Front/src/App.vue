@@ -7,17 +7,22 @@ const ipAddress = ref("")
 // Motor
 const motor1 = ref(null)
 const motor1data = ref(0);
+const motor2 = ref(null)
+const motor2data = ref(0);
 // WebSocket
 var ws = null
 const isWSConnected = ref(false)
 
 // Motor値変化
 watch(motor1data, async(newValue, oldValue) => {
-  motor(newValue)
+  motor(newValue, "R")
+})
+watch(motor2data, async(newValue, oldValue) => {
+  motor(newValue, "L")
 })
 
-function motor(value) {
-  ws.send(value)
+function motor(value, rl) {
+  ws.send(rl + String(value))
 }
 
 onMounted(() => {
@@ -38,7 +43,8 @@ onMounted(() => {
   ws.onopen = (event) => {
     console.log("WS : サーバーConnect")
     isWSConnected.value = true
-    motor(motor1data.value)
+    motor(motor1data.value, "R")
+    motor(motor2data.value, "L")
   }
   ws.onclose = (event) => {
     console.log("WS : サーバーDisconnect")
@@ -80,6 +86,14 @@ function save() {
             <button class="btn btn-danger" style="margin-left: 1em; padding: 0.7em 1em 0.8em; --bs-btn-font-size: .75rem; --bs-btn-line-height: 0;" @click="motor1data = 0">Stop</button>
             <button class="btn btn-danger" style="margin-left: 1em; padding: 0.7em 1em 0.8em; --bs-btn-font-size: .75rem; --bs-btn-line-height: 0;" @click="motor1data = 0">Brake</button>
             <input type="range" class="form-range" id="motor1" ref="motor1" :min="-100" :max="100" v-model="motor1data">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <label for="motor2" class="form-label zeromp">モーター2 ({{ motor2data }})</label>
+            <button class="btn btn-danger" style="margin-left: 1em; padding: 0.7em 1em 0.8em; --bs-btn-font-size: .75rem; --bs-btn-line-height: 0;" @click="motor2data = 0">Stop</button>
+            <button class="btn btn-danger" style="margin-left: 1em; padding: 0.7em 1em 0.8em; --bs-btn-font-size: .75rem; --bs-btn-line-height: 0;" @click="motor2data = 0">Brake</button>
+            <input type="range" class="form-range" id="motor2" ref="motor2" :min="-100" :max="100" v-model="motor2data">
           </div>
         </div>
         <dev class="row">
