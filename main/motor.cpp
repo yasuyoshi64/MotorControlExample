@@ -31,9 +31,10 @@ void Motor::clear() {
     m_speed = 0;
 }
 
-void Motor::init(gpio_num_t gpioINA, gpio_num_t gpioINB) {
+void Motor::init(int groupID, gpio_num_t gpioINA, gpio_num_t gpioINB) {
     ESP_LOGI(TAG, "init(S)");
 
+    m_groupID = groupID;
     m_gpioINA = gpioINA;
     m_gpioINB = gpioINB;
 
@@ -49,7 +50,7 @@ void Motor::init(gpio_num_t gpioINA, gpio_num_t gpioINB) {
         ESP_LOGI(TAG, "init(1)");
         m_timer[i] = NULL;
         mcpwm_timer_config_t timer_config = {
-            .group_id = i,
+            .group_id = m_groupID,
             .clk_src = MCPWM_TIMER_CLK_SRC_DEFAULT,
             .resolution_hz = MOTOR_PWM_RESOLUTION_HZ,
             .count_mode = MCPWM_TIMER_COUNT_MODE_UP,
@@ -64,7 +65,7 @@ void Motor::init(gpio_num_t gpioINA, gpio_num_t gpioINB) {
         ESP_LOGI(TAG, "init(2)");
         m_oper[i] = NULL;
         mcpwm_operator_config_t operator_config = {
-            .group_id = i,
+            .group_id = m_groupID,
         };
         ret = mcpwm_new_operator(&operator_config, &m_oper[i]);
         if (ret != ESP_OK) {

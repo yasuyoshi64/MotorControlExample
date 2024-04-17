@@ -24,10 +24,15 @@ OLED(SSD1306) PIN configuration
 	I2C SDA GPIO number		21
 	I2C SCL GPIO number		22
 
-MOTOR(BD65496) PIN configuration
+MOTOR(BD65496) A PIN configuration
 
 	INA GPIO NUMBER			12
 	INB GPIO NUMBER			13
+
+MOTOR(BD65496) B PIN configuration
+
+	INA GPIO NUMBER			14
+	INB GPIO NUMBER			15
 
 HTTP Server
 
