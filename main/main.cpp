@@ -319,7 +319,7 @@ char* Application::sebSocketFunc(const char* data, void* context) {
     std::string str = data;
     int speed = 0;
     MotorDirection md = MotorDirection::Stop;
-    if (str == "break") {
+    if (str == "brake") {
         speed = 0;
         md = MotorDirection::Brake;
     } else {

@@ -42,9 +42,9 @@ class Motor {
         gpio_num_t m_gpioINA;   // 制御用GPIO
         gpio_num_t m_gpioINB;   // 制御用GPIO
         MotorDirection m_md;
-        mcpwm_timer_handle_t m_timer[2];
-        mcpwm_oper_handle_t m_oper[2];
-        mcpwm_cmpr_handle_t m_comparator[2];
-        mcpwm_gen_handle_t m_generator[2];
+        mcpwm_timer_handle_t m_timer;
+        mcpwm_oper_handle_t m_oper;
+        mcpwm_cmpr_handle_t m_comparator;
+        mcpwm_gen_handle_t m_generator;
         int m_speed;            // 0～100%
 };
